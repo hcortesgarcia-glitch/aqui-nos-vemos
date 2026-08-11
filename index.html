@@ -83,6 +83,34 @@
   textarea{resize:vertical;min-height:70px}
   .hint{font-size:12px;color:var(--muted);font-weight:600;margin-top:8px}
   .save-ta{width:100%;min-height:170px;font-family:ui-monospace,monospace;font-size:11.5px;border:1px solid var(--line2);border-radius:10px;padding:10px}
+  /* ===== Panel visual de avance ===== */
+  .dashwrap{display:flex;flex-direction:column;gap:16px}
+  .hero{display:flex;gap:24px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 24px}
+  .hero .htext{flex:1;min-width:230px}
+  .hero .htext h3{font-size:17px;font-weight:900;margin-bottom:5px}
+  .hero .htext .hbig{font-size:14.5px;font-weight:700;color:var(--ink2)}
+  .hero .hmeta{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:8px;line-height:1.4}
+  .rings{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.rings{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.rings{grid-template-columns:1fr}}
+  .ring-card{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:16px;padding:16px 14px 15px;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .ring-card .rc-name{font-size:13px;font-weight:900;margin-top:10px;line-height:1.2}
+  .ring-card .rc-ana{font-size:13px;font-weight:900;margin-top:7px}
+  .ring-card .rc-desc{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:3px;line-height:1.35}
+  .ring-card .rc-state{display:inline-block;font-size:10.5px;font-weight:800;border-radius:20px;padding:3px 11px;margin-top:9px}
+  .ring-card .rc-count{font-size:11px;color:var(--muted);font-weight:700;margin-top:7px}
+  .statusbar{display:flex;height:24px;border-radius:9px;overflow:hidden;gap:2px;background:var(--wash)}
+  .statusbar .seg{height:100%}
+  .statuslegend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px}
+  .statuslegend .lg{font-size:12.5px;font-weight:700;color:var(--ink2);display:flex;align-items:center;gap:6px}
+  .statuslegend .lg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .statuslegend .lg b{color:var(--ink)}
+  .avttable{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+  .avttable th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:800;padding:7px 8px;border-bottom:1px solid var(--line)}
+  .avttable td{padding:9px 8px;border-bottom:1px solid var(--line);font-weight:700}
+  .avttable .frdot{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:8px;vertical-align:middle}
+  .avttable .mini{height:9px;border-radius:6px;background:var(--wash);overflow:hidden}
+  .avttable .mini>i{display:block;height:100%;border-radius:6px;transition:width .5s}
   .overlay{position:fixed;inset:0;background:rgba(20,16,30,.5);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50}
   .overlay.open{display:flex}
   .modal{background:#fff;border-radius:16px;max-width:460px;width:100%;padding:20px 22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -117,12 +145,11 @@
       <button class="tab" data-v="dash">Avance</button>
       <button class="tab" data-v="gantt">Línea del tiempo</button>
       <button class="tab" data-v="min">Minutas de junta</button>
-      <button class="tab" data-v="save">Guardar / Cargar</button>
     </div>
   </div>
 </header>
 <div class="secbar"><div class="wrap">
-  <span id="secStatus">🔒 Modo local: tu avance vive solo en este navegador. Usa «Guardar / Cargar» para conservarlo. Para multiusuario en la nube, pega tu config de Firebase (ver guía).</span>
+  <span id="secStatus">☁️ Conectando con la nube…</span>
   <span id="userBar" style="display:none">☁️ <b id="userEmail"></b> <button class="btn sm ghost" id="btnChgPw">Cambiar contraseña</button> <button class="btn sm ghost" id="btnSignout">Salir</button></span>
 </div></div>
 
@@ -133,7 +160,7 @@
       <option value="">Todos</option><option value="1">Legal y constitución</option><option value="2">Datos y cumplimiento</option><option value="3">Tecnología y producto</option><option value="4">Marca y comercial</option>
     </select></span>
     <button class="btn sm" id="addBtn">+ Nuevo pendiente</button>
-    <span class="hint" style="margin-left:auto" id="toolHint">Tip: guarda tu avance en «Guardar / Cargar» antes de cerrar.</span>
+    <span class="hint" style="margin-left:auto" id="toolHint">Se guarda solo en la nube.</span>
   </div>
 </div>
 
@@ -145,10 +172,14 @@
   </section>
   <section class="view" id="v-dash">
     <h2>Avance del proyecto</h2>
-    <div class="sub">Se actualiza automáticamente conforme cambian los estatus.</div>
-    <div class="stat-row" id="stats"></div>
-    <div class="panel"><h3>Avance por responsable</h3><div id="byPerson"></div></div>
-    <div class="panel"><h3>Avance por frente</h3><div id="byTrack"></div></div>
+    <div class="sub">Todo se actualiza solo conforme cambian los estatus. Cada frente es una fase del arranque.</div>
+    <div class="dashwrap">
+      <div class="hero" id="dashHero"></div>
+      <div class="rings" id="dashRings"></div>
+      <div class="panel"><h3>¿Cómo venimos por estatus?</h3><div id="dashStatus"></div></div>
+      <div class="panel"><h3>Avance por frente (fase)</h3><div style="overflow-x:auto"><table class="avttable" id="dashTable"></table></div></div>
+      <div class="panel"><h3>Avance por responsable</h3><div id="byPerson"></div></div>
+    </div>
   </section>
   <section class="view" id="v-gantt">
     <h2>Línea del tiempo (12 semanas)</h2>
@@ -171,22 +202,6 @@
         <div class="hint">Cada acuerdo se agrega al tablero como pendiente «Por hacer», con su responsable.</div>
       </div>
       <div class="panel"><h3>Minutas anteriores</h3><div id="minList"><div class="hint">Aún no hay minutas registradas.</div></div></div>
-    </div>
-  </section>
-  <section class="view" id="v-save">
-    <h2>Guardar / Cargar tu avance</h2>
-    <div class="sub" id="saveSub">Los tableros locales no guardan solos. Copia este texto y guárdalo; la próxima vez pégalo aquí y presiona «Cargar».</div>
-    <div class="panel">
-      <textarea class="save-ta" id="saveTA" spellcheck="false"></textarea>
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" id="btnRefresh">Actualizar texto</button>
-        <button class="btn ghost" id="btnCopy">Copiar</button>
-        <button class="btn ghost" id="btnLoad">Cargar desde el texto</button>
-        <button class="btn ghost" id="btnDownload">Descargar archivo</button>
-        <label class="btn ghost" style="cursor:pointer">Subir archivo<input type="file" id="fileIn" accept=".json,application/json" style="display:none"></label>
-        <button class="btn danger" id="btnReset">Reiniciar de fábrica</button>
-      </div>
-      <div class="hint">Este archivo contiene información del proyecto: guárdalo en un lugar privado (Drive del equipo), no en un chat público ni en un repositorio abierto.</div>
     </div>
   </section>
 </div>
@@ -318,23 +333,85 @@ function renderKanban(){
   host.innerHTML=html;
 }
 function pct(a,b){return b===0?0:Math.round(a/b*100);}
-function renderDash(){
-  var ts=state.tasks; var done=ts.filter(function(t){return t.status==="done";}).length;
-  var doing=ts.filter(function(t){return t.status==="doing";}).length;
-  var review=ts.filter(function(t){return t.status==="review";}).length;
-  var todo=ts.filter(function(t){return t.status==="todo";}).length;
-  document.getElementById("stats").innerHTML=
-    stat(pct(done,ts.length)+"%","Avance total","var(--s-done)")+
-    stat(todo,"Por hacer","var(--s-todo)")+stat(doing,"En progreso","var(--s-doing)")+
-    stat(review,"En revisión","var(--s-review)")+stat(done,"Hecho","var(--s-done)");
-  var bp="";
-  PEOPLE.forEach(function(p){var mine=ts.filter(function(t){return (t.owner||"").indexOf(p)>=0;});var d=mine.filter(function(t){return t.status==="done";}).length;bp+=meter(p,pct(d,mine.length),"var(--t4)",d+"/"+mine.length);});
-  document.getElementById("byPerson").innerHTML=bp||'<div class="hint">Sin datos.</div>';
-  var bt="";
-  [1,2,3,4].forEach(function(k){var mine=ts.filter(function(t){return t.track===k;});var d=mine.filter(function(t){return t.status==="done";}).length;bt+=meter(TRACKS[k].n,pct(d,mine.length),TRACKS[k].hex,d+"/"+mine.length);});
-  document.getElementById("byTrack").innerHTML=bt;
+// Avance ponderado: la barra crece conforme el pendiente avanza de estatus.
+var SW={todo:0,doing:0.4,review:0.75,done:1};
+function progressOf(ts){
+  if(!ts.length)return {pct:0,done:0,total:0};
+  var sum=0,done=0;
+  ts.forEach(function(t){sum+=(SW[t.status]||0); if(t.status==="done")done++;});
+  return {pct:Math.round(sum/ts.length*100),done:done,total:ts.length};
 }
-function stat(big,lbl,c){return '<div class="stat"><div class="big" style="color:'+c+'">'+big+'</div><div class="lbl">'+lbl+'</div></div>';}
+function phaseState(p){
+  if(p>=100)return {t:"¡Terminado! 🎉",c:"var(--s-done)"};
+  if(p>=76) return {t:"En la recta final",c:"var(--s-done)"};
+  if(p>=51) return {t:"Bien encaminado",c:"var(--s-doing)"};
+  if(p>=26) return {t:"Tomando forma",c:"var(--s-review)"};
+  if(p>=1)  return {t:"Apenas arrancando",c:"var(--s-review)"};
+  return {t:"Aún sin arrancar",c:"var(--s-todo)"};
+}
+var PHASE_ANA={
+  1:{icon:"🏗️",name:"Los cimientos",desc:"Sin esto, nada se sostiene."},
+  2:{icon:"🛡️",name:"El blindaje",desc:"Protege a la casa y a sus clientes."},
+  3:{icon:"⚙️",name:"El motor",desc:"El corazón que hace funcionar todo."},
+  4:{icon:"🚪",name:"Abrir las puertas",desc:"Cuando el mundo por fin nos ve."}
+};
+function donut(p,color,size,thick){
+  size=size||120;thick=thick||14;
+  var r=(size-thick)/2, c=2*Math.PI*r, pp=Math.max(0,Math.min(100,p)), off=c*(1-pp/100), cx=size/2, fs=Math.round(size*0.26);
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" style="flex:0 0 auto">'
+    +'<circle cx="'+cx+'" cy="'+cx+'" r="'+r+'" fill="none" stroke="var(--wash)" stroke-width="'+thick+'"/>'
+    +'<circle cx="'+cx+'" cy="'+cx+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="'+thick+'" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 '+cx+' '+cx+')" style="transition:stroke-dashoffset .6s"/>'
+    +'<text x="'+cx+'" y="'+cx+'" text-anchor="middle" dominant-baseline="central" style="fill:'+color+';font-weight:900;font-size:'+fs+'px">'+p+'%</text>'
+    +'</svg>';
+}
+function statusBar(cn){
+  var total=(cn.todo+cn.doing+cn.review+cn.done)||1;
+  var segs=[["Por hacer","todo","var(--s-todo)"],["En progreso","doing","var(--s-doing)"],["En revisión","review","var(--s-review)"],["Hecho","done","var(--s-done)"]];
+  var bar='<div class="statusbar">';
+  segs.forEach(function(s){var w=cn[s[1]]/total*100; if(w>0)bar+='<div class="seg" style="width:'+w+'%;background:'+s[2]+'" title="'+s[0]+': '+cn[s[1]]+'"></div>';});
+  bar+='</div><div class="statuslegend">'+segs.map(function(s){return '<span class="lg"><i style="background:'+s[2]+'"></i>'+s[0]+' <b>'+cn[s[1]]+'</b></span>';}).join('')+'</div>';
+  return bar;
+}
+function renderDash(){
+  var ts=state.tasks;
+  var g=progressOf(ts), gs=phaseState(g.pct);
+  document.getElementById("dashHero").innerHTML=
+    donut(g.pct,"var(--s-done)",150,16)+
+    '<div class="htext"><h3>Avance global de Yospitality</h3>'+
+    '<div class="hbig">'+g.done+' de '+g.total+' actividades terminadas · <b style="color:'+gs.c+'">'+gs.t+'</b></div>'+
+    '<div class="hmeta">La rueda crece conforme cada pendiente pasa de «por hacer» a «en progreso», «en revisión» y «hecho».</div></div>';
+  var rings="";
+  [1,2,3,4].forEach(function(k){
+    var mine=ts.filter(function(t){return t.track===k;});
+    var pr=progressOf(mine), st=phaseState(pr.pct), an=PHASE_ANA[k];
+    rings+='<div class="ring-card" style="border-top-color:'+TRACKS[k].hex+'">'+
+      donut(pr.pct,TRACKS[k].hex,120,14)+
+      '<div class="rc-name">Fase '+k+' · '+esc(TRACKS[k].n)+'</div>'+
+      '<div class="rc-ana" style="color:'+TRACKS[k].hex+'">'+an.icon+' '+an.name+'</div>'+
+      '<div class="rc-desc">'+an.desc+'</div>'+
+      '<div class="rc-state" style="background:'+st.c+'22;color:'+st.c+'">'+st.t+'</div>'+
+      '<div class="rc-count">'+pr.done+' de '+pr.total+' actividades</div>'+
+    '</div>';
+  });
+  document.getElementById("dashRings").innerHTML=rings;
+  var cn={todo:0,doing:0,review:0,done:0};
+  ts.forEach(function(t){if(cn[t.status]!=null)cn[t.status]++;});
+  document.getElementById("dashStatus").innerHTML=statusBar(cn);
+  var tb='<tr><th>Frente (fase)</th><th>Total</th><th>Hechas</th><th>En proceso</th><th>Por hacer</th><th>Avance</th></tr>';
+  [1,2,3,4].forEach(function(k){
+    var mine=ts.filter(function(t){return t.track===k;});
+    var pr=progressOf(mine);
+    var proc=mine.filter(function(t){return t.status==="doing"||t.status==="review";}).length;
+    var td=mine.filter(function(t){return t.status==="todo";}).length;
+    tb+='<tr><td><span class="frdot" style="background:'+TRACKS[k].hex+'"></span>'+esc(TRACKS[k].n)+'</td>'+
+      '<td>'+pr.total+'</td><td>'+pr.done+'</td><td>'+proc+'</td><td>'+td+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:8px"><div class="mini" style="flex:1;min-width:70px"><i style="width:'+pr.pct+'%;background:'+TRACKS[k].hex+'"></i></div><b style="color:'+TRACKS[k].hex+';min-width:36px;text-align:right">'+pr.pct+'%</b></div></td></tr>';
+  });
+  document.getElementById("dashTable").innerHTML=tb;
+  var bp="";
+  PEOPLE.forEach(function(p){var mine=ts.filter(function(t){return (t.owner||"").indexOf(p)>=0;}); if(!mine.length)return; var pr=progressOf(mine); bp+=meter(p,pr.pct,"var(--t4)",pr.done+"/"+pr.total);});
+  document.getElementById("byPerson").innerHTML=bp||'<div class="hint">Sin datos.</div>';
+}
 function meter(lbl,p,c,val){return '<div class="meter"><div class="ml">'+esc(lbl)+'</div><div class="track"><div class="fill" style="width:'+p+'%;background:'+c+'"></div></div><div class="mv">'+val+'</div></div>';}
 function renderGantt(){
   var host=document.getElementById("gantt");
@@ -364,8 +441,7 @@ function itemRow(){
   d.querySelector(".i-del").onclick=function(){d.remove();};
   return d;
 }
-function renderAll(){renderKanban();renderDash();renderGantt();renderMin();refreshSave();}
-function refreshSave(){document.getElementById("saveTA").value=JSON.stringify(state,null,1);}
+function renderAll(){renderKanban();renderDash();renderGantt();renderMin();}
 function commit(){renderAll(); if(CLOUD.on && CLOUD.save) CLOUD.save();}   // guarda en la nube si está activa
 
 (function(){
@@ -422,27 +498,10 @@ document.getElementById("saveMin").addEventListener("click",function(){
   document.getElementById("mItems").innerHTML="";document.getElementById("mItems").appendChild(itemRow());
   commit(); alert("Minuta guardada. "+items.length+" pendiente(s) agregado(s) al tablero.");
 });
-document.getElementById("btnRefresh").addEventListener("click",refreshSave);
-document.getElementById("btnCopy").addEventListener("click",function(){var ta=document.getElementById("saveTA");ta.select();try{document.execCommand("copy");alert("Copiado.");}catch(e){alert("Selecciona el texto y cópialo manualmente.");}});
-document.getElementById("btnLoad").addEventListener("click",function(){
-  var o;try{o=JSON.parse(document.getElementById("saveTA").value);}catch(e){alert("El texto no es un JSON válido.");return;}
-  if(!validState(o)){alert("El contenido no tiene la estructura esperada del tablero. No se cargó.");return;}
-  o.minutes=Array.isArray(o.minutes)?o.minutes:[];state=o;commit();alert("Avance cargado.");
-});
-document.getElementById("btnDownload").addEventListener("click",function(){
-  try{var blob=new Blob([JSON.stringify(state,null,1)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="tablero-yospitality.json";document.body.appendChild(a);a.click();a.remove();}catch(e){alert("Si no descarga, copia el texto manualmente.");}
-});
-document.getElementById("fileIn").addEventListener("change",function(e){
-  var f=e.target.files[0];if(!f)return;var r=new FileReader();
-  r.onload=function(){var o;try{o=JSON.parse(r.result);}catch(err){alert("Archivo inválido.");return;}if(!validState(o)){alert("El archivo no tiene la estructura del tablero.");return;}o.minutes=Array.isArray(o.minutes)?o.minutes:[];state=o;commit();alert("Avance cargado desde archivo.");};
-  r.readAsText(f);e.target.value="";
-});
-document.getElementById("btnReset").addEventListener("click",function(){if(confirm("Esto borra todo y regresa al plan original. ¿Continuar?")){uid=100;state={tasks:seed(),minutes:[]};commit();}});
-
 /* ================= CAPA NUBE (Firebase) ================= */
 function setUserBar(email){
   var ub=document.getElementById("userBar");
-  if(email){document.getElementById("userEmail").textContent=email;ub.style.display="";document.getElementById("secStatus").textContent="☁️ Modo nube · sincronizado en tiempo real con los socios.";document.getElementById("toolHint").textContent="Se guarda solo en la nube.";document.getElementById("saveSub").textContent="En modo nube el tablero se guarda solo. Aquí puedes descargar un respaldo cuando quieras.";}
+  if(email){document.getElementById("userEmail").textContent=email;ub.style.display="";document.getElementById("secStatus").textContent="☁️ Modo nube · sincronizado en tiempo real con los socios.";document.getElementById("toolHint").textContent="Se guarda solo en la nube.";}
   else{ub.style.display="none";}
 }
 function authMsg(t){document.getElementById("authMsg").textContent=t||"";}
