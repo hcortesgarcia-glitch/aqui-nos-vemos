@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yospitality — Aquí nos vemos</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#241c2e;--ink2:#4a4160;--paper:#f6f5f8;--card:#fff;--line:#e7e2ec;--line2:#d9d3e0;--muted:#6e6878;--wash:#f3f1f6;
+    --t1:#2a78d6;--t2:#eb6834;--t3:#1baf7a;--t4:#4a3aa7;
+    --s-todo:#9aa0a6;--s-doing:#2a78d6;--s-review:#e8a13a;--s-done:#1e9e57;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Nunito',sans-serif;color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  header{background:var(--ink);color:#fff;padding:24px 0 18px}
+  header h1{font-size:25px;font-weight:900}
+  header p{color:#c7c0d4;font-size:14px;font-weight:600;margin-top:4px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:15px}
+  .tab{background:rgba(255,255,255,.10);color:#e7e1f0;border:none;font-family:inherit;font-weight:800;font-size:13.5px;padding:9px 16px;border-radius:10px 10px 0 0;cursor:pointer}
+  .tab.active{background:var(--paper);color:var(--ink)}
+  .secbar{background:#fff6e6;border-bottom:1px solid #f0dca8;color:#7a5a12;font-size:12.5px;font-weight:700;padding:8px 0}
+  .secbar .wrap{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .bar{background:var(--card);border-bottom:1px solid var(--line);padding:11px 0}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  select,input,textarea,button{font-family:inherit}
+  .fld{font-size:13px;font-weight:700;color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:7px 10px;background:#fff}
+  label.mini{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-right:2px}
+  .btn{background:var(--ink);color:#fff;border:none;border-radius:9px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line2)}
+  .btn.sm{padding:5px 9px;font-size:12px}
+  .btn.danger{background:#fff;color:#b23b3b;border:1px solid #eccdca}
+  section.view{display:none;padding:20px 0 60px}
+  section.view.active{display:block}
+  h2{font-size:20px;font-weight:800;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:13.5px;font-weight:600;margin-bottom:16px}
+  .kb{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:900px){.kb{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.kb{grid-template-columns:1fr}}
+  .col{background:var(--wash);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:120px}
+  .col h3{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center;padding:2px 4px 8px}
+  .col .cnt{font-size:12px;color:var(--muted);background:#fff;border-radius:20px;padding:1px 8px}
+  .card{background:#fff;border:1px solid var(--line);border-left:4px solid var(--t1);border-radius:10px;padding:10px 11px;margin-bottom:9px;box-shadow:0 1px 2px rgba(0,0,0,.04);position:relative}
+  .card .cn{font-weight:800;font-size:13.5px;line-height:1.25;padding-right:18px}
+  .card .del{position:absolute;top:8px;right:9px;border:none;background:none;color:#c3bcd0;font-weight:900;cursor:pointer;font-size:14px;line-height:1}
+  .card .del:hover{color:#b23b3b}
+  .card .cmeta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px}
+  .tag{font-size:10.5px;font-weight:800;border-radius:20px;padding:2px 8px;background:var(--wash);color:var(--ink2)}
+  .tag.own{background:#eef;color:#334}
+  .card select{font-size:11.5px;font-weight:800;border:1px solid var(--line2);border-radius:7px;padding:3px 6px;margin-top:8px;width:100%}
+  .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+  @media(max-width:800px){.stat-row{grid-template-columns:1fr 1fr}}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-align:center}
+  .stat .big{font-size:30px;font-weight:900}
+  .stat .lbl{font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+  .panel h3{font-size:15px;font-weight:800;margin-bottom:12px}
+  .meter{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:12px;margin-bottom:9px}
+  .meter .ml{font-size:13px;font-weight:800}
+  .meter .track{height:13px;background:var(--wash);border-radius:8px;overflow:hidden}
+  .meter .fill{height:100%;border-radius:8px;transition:width .3s}
+  .meter .mv{font-size:12.5px;font-weight:800;color:var(--muted);text-align:right}
+  .gantt{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .gr{display:grid;grid-template-columns:230px 1fr;border-top:1px solid var(--line)}
+  .gr.head{border-top:none;background:var(--wash)}
+  .glab{padding:6px 10px;font-size:12px;font-weight:800;display:flex;flex-direction:column;justify-content:center;min-height:34px}
+  .glab .go{font-size:10.5px;color:var(--muted);font-weight:700}
+  .glane{position:relative;display:grid;grid-template-columns:repeat(12,1fr);align-items:center;background:repeating-linear-gradient(to right,transparent,transparent calc(100%/12 - 1px),var(--line) calc(100%/12 - 1px),var(--line) calc(100%/12))}
+  .gbar{height:18px;border-radius:5px;margin:0 2px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:900;color:#fff;overflow:hidden;white-space:nowrap}
+  .gwk{text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:4px 0;border-left:1px solid var(--line)}
+  .gbar.done{opacity:.55}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  .form label{display:block;font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:8px 0 3px}
+  .form input,.form textarea,.form select{width:100%;border:1px solid var(--line2);border-radius:9px;padding:8px 10px;font-size:13.5px;font-weight:600}
+  .item-row{display:grid;grid-template-columns:1fr 120px 90px auto;gap:6px;margin-bottom:6px}
+  @media(max-width:600px){.item-row{grid-template-columns:1fr}}
+  .minute{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+  .minute h4{font-size:14px;font-weight:800}
+  .minute .mm{font-size:12px;color:var(--muted);font-weight:700;margin:2px 0 8px}
+  .minute li{font-size:13px;font-weight:600;margin-left:16px}
+  textarea{resize:vertical;min-height:70px}
+  .hint{font-size:12px;color:var(--muted);font-weight:600;margin-top:8px}
+  .save-ta{width:100%;min-height:170px;font-family:ui-monospace,monospace;font-size:11.5px;border:1px solid var(--line2);border-radius:10px;padding:10px}
+  .overlay{position:fixed;inset:0;background:rgba(20,16,30,.5);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:16px;max-width:460px;width:100%;padding:20px 22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .modal h3{font-size:18px;font-weight:900;margin-bottom:8px}
+  .modal .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+  #authGate{position:fixed;inset:0;background:var(--ink);color:#fff;z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column;padding:24px;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN (solo en modo nube) ================= -->
+<div id="authGate">
+  <div style="max-width:400px;width:100%">
+    <div style="font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#ffce6b;font-weight:800;margin-bottom:8px">Aquí nos vemos · Yospitality</div>
+    <h2 style="font-size:26px;font-weight:900;margin-bottom:8px">Acceso para socios</h2>
+    <p style="color:#c7c0d4;font-weight:600;margin-bottom:16px">Entra con tu correo. <b style="color:#fff">La primera vez</b>, la contraseña que escribas queda como la tuya.</p>
+    <input id="authEmail" type="email" autocomplete="username" placeholder="tu-correo@ejemplo.com" style="width:100%;padding:11px 12px;border-radius:10px;border:none;font-size:15px;margin-bottom:8px">
+    <input id="authPass" type="password" autocomplete="current-password" placeholder="Contraseña (mínimo 6 caracteres)" style="width:100%;padding:11px 12px;border-radius:10px;border:none;font-size:15px;margin-bottom:12px">
+    <button class="btn" id="btnLogin" style="background:#fff;color:var(--ink);font-size:15px;padding:11px 20px;width:100%">Entrar</button>
+    <div style="margin-top:12px"><a href="#" id="lnkForgot" style="color:#ffce6b;font-weight:700;font-size:13px;text-decoration:none">¿Olvidaste tu contraseña?</a></div>
+    <div id="authMsg" style="color:#ffce6b;font-weight:700;font-size:13px;margin-top:12px"></div>
+  </div>
+</div>
+
+<header>
+  <div class="wrap">
+    <h1>Aquí nos vemos</h1>
+    <p>El arranque de Yospitality · <b>Feel Seen</b> — donde nos vemos como equipo y vemos avanzar el proyecto. Cambia el estatus y todo se actualiza solo.</p>
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-v="kanban">Tablero</button>
+      <button class="tab" data-v="dash">Avance</button>
+      <button class="tab" data-v="gantt">Línea del tiempo</button>
+      <button class="tab" data-v="min">Minutas de junta</button>
+      <button class="tab" data-v="save">Guardar / Cargar</button>
+    </div>
+  </div>
+</header>
+<div class="secbar"><div class="wrap">
+  <span id="secStatus">🔒 Modo local: tu avance vive solo en este navegador. Usa «Guardar / Cargar» para conservarlo. Para multiusuario en la nube, pega tu config de Firebase (ver guía).</span>
+  <span id="userBar" style="display:none">☁️ <b id="userEmail"></b> <button class="btn sm ghost" id="btnChgPw">Cambiar contraseña</button> <button class="btn sm ghost" id="btnSignout">Salir</button></span>
+</div></div>
+
+<div class="bar">
+  <div class="wrap toolbar">
+    <span><label class="mini">Responsable</label><select id="fPerson" class="fld"></select></span>
+    <span><label class="mini">Frente</label><select id="fTrack" class="fld">
+      <option value="">Todos</option><option value="1">Legal y constitución</option><option value="2">Datos y cumplimiento</option><option value="3">Tecnología y producto</option><option value="4">Marca y comercial</option>
+    </select></span>
+    <button class="btn sm" id="addBtn">+ Nuevo pendiente</button>
+    <span class="hint" style="margin-left:auto" id="toolHint">Tip: guarda tu avance en «Guardar / Cargar» antes de cerrar.</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="view active" id="v-kanban">
+    <h2>Tablero de pendientes</h2>
+    <div class="sub">Mueve cada tarjeta con el menú de estatus. Filtra por responsable o frente arriba.</div>
+    <div class="kb" id="kanban"></div>
+  </section>
+  <section class="view" id="v-dash">
+    <h2>Avance del proyecto</h2>
+    <div class="sub">Se actualiza automáticamente conforme cambian los estatus.</div>
+    <div class="stat-row" id="stats"></div>
+    <div class="panel"><h3>Avance por responsable</h3><div id="byPerson"></div></div>
+    <div class="panel"><h3>Avance por frente</h3><div id="byTrack"></div></div>
+  </section>
+  <section class="view" id="v-gantt">
+    <h2>Línea del tiempo (12 semanas)</h2>
+    <div class="sub">Las barras hechas se ven atenuadas. El color es el frente; la etiqueta, el responsable.</div>
+    <div class="gantt" id="gantt"></div>
+  </section>
+  <section class="view" id="v-min">
+    <h2>Minutas de junta</h2>
+    <div class="sub">Documenta la reunión y agrega los acuerdos como pendientes — aparecen solos en el tablero.</div>
+    <div class="grid2">
+      <div class="panel form">
+        <h3>Nueva minuta</h3>
+        <label>Fecha</label><input id="mFecha" maxlength="60" placeholder="Ej. 12 de agosto de 2026">
+        <label>Asistentes</label><input id="mAsist" maxlength="200" placeholder="Héctor, Alejandro, María, Isa, Juan Emilio">
+        <label>Notas / decisiones</label><textarea id="mNotas" maxlength="2000" placeholder="Lo que se habló, las decisiones tomadas…"></textarea>
+        <label>Acuerdos (pendientes que se reparten)</label>
+        <div id="mItems"></div>
+        <button class="btn ghost sm" id="addItem" style="margin-top:6px">+ Agregar acuerdo</button>
+        <div style="margin-top:12px"><button class="btn" id="saveMin">Guardar minuta y repartir pendientes</button></div>
+        <div class="hint">Cada acuerdo se agrega al tablero como pendiente «Por hacer», con su responsable.</div>
+      </div>
+      <div class="panel"><h3>Minutas anteriores</h3><div id="minList"><div class="hint">Aún no hay minutas registradas.</div></div></div>
+    </div>
+  </section>
+  <section class="view" id="v-save">
+    <h2>Guardar / Cargar tu avance</h2>
+    <div class="sub" id="saveSub">Los tableros locales no guardan solos. Copia este texto y guárdalo; la próxima vez pégalo aquí y presiona «Cargar».</div>
+    <div class="panel">
+      <textarea class="save-ta" id="saveTA" spellcheck="false"></textarea>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="btnRefresh">Actualizar texto</button>
+        <button class="btn ghost" id="btnCopy">Copiar</button>
+        <button class="btn ghost" id="btnLoad">Cargar desde el texto</button>
+        <button class="btn ghost" id="btnDownload">Descargar archivo</button>
+        <label class="btn ghost" style="cursor:pointer">Subir archivo<input type="file" id="fileIn" accept=".json,application/json" style="display:none"></label>
+        <button class="btn danger" id="btnReset">Reiniciar de fábrica</button>
+      </div>
+      <div class="hint">Este archivo contiene información del proyecto: guárdalo en un lugar privado (Drive del equipo), no en un chat público ni en un repositorio abierto.</div>
+    </div>
+  </section>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal form">
+    <h3>Nuevo pendiente</h3>
+    <label>Actividad</label><input id="nName" maxlength="120" placeholder="¿Qué hay que hacer?">
+    <div class="row2">
+      <div><label>Responsable</label><input id="nOwner" list="peopleList" maxlength="60" placeholder="Héctor"></div>
+      <div><label>Frente</label><select id="nTrack"><option value="1">Legal y constitución</option><option value="2">Datos y cumplimiento</option><option value="3">Tecnología y producto</option><option value="4">Marca y comercial</option></select></div>
+    </div>
+    <div class="row2">
+      <div><label>Estatus</label><select id="nStatus"><option value="todo">Por hacer</option><option value="doing">En progreso</option><option value="review">En revisión</option><option value="done">Hecho</option></select></div>
+      <div><label>Tipo</label><select id="nType"><option>única</option><option>constante</option></select></div>
+    </div>
+    <div class="row2">
+      <div><label>Semana inicio (opcional)</label><input id="nStart" type="number" min="1" max="12" placeholder="1–12"></div>
+      <div><label>Semana fin (opcional)</label><input id="nEnd" type="number" min="1" max="12" placeholder="1–12"></div>
+    </div>
+    <datalist id="peopleList"></datalist>
+    <div class="actions"><button class="btn ghost" id="nCancel">Cancelar</button><button class="btn" id="nSave">Agregar</button></div>
+  </div>
+</div>
+
+<!-- MODAL CAMBIAR CONTRASEÑA (modo nube) -->
+<div class="overlay" id="pwOverlay">
+  <div class="modal form">
+    <h3>Cambiar contraseña</h3>
+    <label>Nueva contraseña (mínimo 6 caracteres)</label><input id="pwNew" type="password" maxlength="64" autocomplete="new-password">
+    <label>Repite la nueva contraseña</label><input id="pwNew2" type="password" maxlength="64" autocomplete="new-password">
+    <div id="pwMsg" style="color:#b23b3b;font-weight:700;font-size:13px;margin-top:8px"></div>
+    <div class="actions"><button class="btn ghost" id="pwCancel">Cancelar</button><button class="btn" id="pwSave">Guardar</button></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   CONFIGURACIÓN DE LA NUBE (Firebase)  ·  Proyecto: yospitality---aqui-nos-vemos
+   YA ESTÁ CONFIGURADO Y CONECTADO:
+     - Authentication (correo/contraseña) HABILITADO.
+     - Firestore + documento  config/allowlist  (lista de socios, NO en el código).
+     - Reglas de seguridad publicadas (el candado: solo entran los correos de la lista).
+     - Esta config del proyecto ya está pegada abajo (la apiKey es pública por diseño;
+       NO contiene correos ni contraseñas).
+   ACCESO DE LOS SOCIOS (sin crear cuentas a mano):
+     La PRIMERA VEZ, cada socio entra con su correo y la contraseña que elija; la app
+     crea su acceso en ese momento. Después usan esa misma contraseña; si la olvidan,
+     "¿Olvidaste tu contraseña?" les manda un correo. El candado de Firestore deja
+     trabajar SOLO a los correos de config/allowlist.
+   ===================================================================== */
+var CONFIG = {
+  apiKey: "AIzaSyBZXFGUYMK0vglfk7agtV4ohcEocDv9iN8",
+  authDomain: "yospitality---aqui-nos-vemos.firebaseapp.com",
+  projectId: "yospitality---aqui-nos-vemos",
+  storageBucket: "yospitality---aqui-nos-vemos.firebasestorage.app",
+  messagingSenderId: "660081262672",
+  appId: "1:660081262672:web:310fc3e9bb3cf8f7e3d155"
+};
+// La lista de socios NO vive en el código: está en Firestore (config/allowlist)
+// y SOLO las reglas de seguridad la consultan del lado del servidor.
+// Tampoco hay contraseñas aquí: las maneja Firebase Auth, nunca el código.
+var ALLOW = [];   // vacío a propósito — el control de acceso lo hacen las reglas de Firestore
+/* ===================================================================== */
+
+var TRACKS={1:{n:"Legal y constitución",hex:"#2a78d6",tx:"#fff"},2:{n:"Datos y cumplimiento",hex:"#eb6834",tx:"#fff"},3:{n:"Tecnología y producto",hex:"#1baf7a",tx:"#0b0b0b"},4:{n:"Marca y comercial",hex:"#4a3aa7",tx:"#fff"}};
+var STATUS={todo:{n:"Por hacer",c:"var(--s-todo)"},doing:{n:"En progreso",c:"var(--s-doing)"},review:{n:"En revisión",c:"var(--s-review)"},done:{n:"Hecho",c:"var(--s-done)"}};
+var STORDER=["todo","doing","review","done"];
+var PEOPLE=["Héctor","Alejandro","Isa","María","Juan Emilio","Clarissa"];
+var uid=100;
+function t(name,owner,track,status,s,e,type){return {id:++uid,name:name,owner:owner,track:track,status:status,start:s||null,end:e||null,type:type||"única"};}
+function seed(){return [
+ t("Elegir notaría, abogado y contador","Héctor",1,"todo",1,2),
+ t("Permiso de denominación","Héctor",1,"todo",1,2),
+ t("Firmar Pacto de Socios + NDA","Todos",1,"todo",2,2),
+ t("Redactar estatutos (con el pacto)","Isa + abogado",1,"todo",2,4),
+ t("Firma ante notario + inscripción RPC","Todos",1,"todo",4,6),
+ t("RFC, e.firma y régimen fiscal","Héctor + contador",1,"todo",6,7),
+ t("Registro de marca (IMPI 9/42/35)","Héctor + agente",1,"todo",3,8),
+ t("Cesiones de propiedad intelectual","Isa + abogado",1,"todo",4,6),
+ t("Apertura de cuenta bancaria","Héctor",1,"todo",6,7),
+ t("Elegir despacho de protección de datos","Isa",2,"todo",2,3),
+ t("Aviso de privacidad + DPA con clientes","Isa + despacho",2,"todo",4,8),
+ t("Términos y Condiciones + SLA","Abogado",2,"todo",5,8),
+ t("Reunión técnica + metodología","Alejandro + Héctor",3,"todo",1,1),
+ t("Definir equipo + herramientas de IA","Alejandro",3,"todo",1,2),
+ t("Cotización del desarrollo de tecnología","Alejandro",3,"todo",1,3),
+ t("Decisión POS: integrar o construir","Héctor + Alejandro",3,"todo",2,4),
+ t("Re-arquitectura multiempresa","Equipo de ingeniería",3,"todo",3,12),
+ t("Cargar datos piloto (Cocinoteca + Gyros)","María + Isa",3,"todo",9,12),
+ t("Co-definición de producto y flujo","Héctor + María + Isa + equipo",3,"todo",3,12,"constante"),
+ t("Co-definir UX (colaborador y gerente)","María + Isa",3,"todo",4,10,"constante"),
+ t("Branding con Clarissa (desde el brief)","Clarissa",4,"doing",1,6),
+ t("Go-to-market inicial (México / N.L.)","María",4,"todo",5,11,"constante"),
+ t("The Grill Master (sembrar curiosidad)","Juan Emilio + Héctor",4,"todo",2,2),
+ t("Abrir puertas comerciales (red de operadores)","Juan Emilio",4,"todo",3,12,"constante"),
+ t("Explorar internacionalización (LATAM)","María + Isa",4,"todo",8,12,"constante")
+];}
+var state={tasks:seed(),minutes:[]};
+var filter={person:"",track:""};
+var CLOUD={on:false,save:null};
+
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function visible(t){ if(filter.person && (t.owner||"").toLowerCase().indexOf(filter.person.toLowerCase())<0) return false; if(filter.track && String(t.track)!==filter.track) return false; return true;}
+function validState(o){ if(!o||typeof o!=="object")return false; if(!Array.isArray(o.tasks))return false;
+  for(var i=0;i<o.tasks.length;i++){var t=o.tasks[i]; if(!t||typeof t.name!=="string"||!TRACKS[t.track]||!STATUS[t.status])return false;}
+  return true;}
+function debounce(fn,ms){var tmr;return function(){var a=arguments,c=this;clearTimeout(tmr);tmr=setTimeout(function(){fn.apply(c,a);},ms);};}
+
+function renderKanban(){
+  var host=document.getElementById("kanban"); var html="";
+  STORDER.forEach(function(st){
+    var items=state.tasks.filter(function(t){return t.status===st && visible(t);});
+    html+='<div class="col"><h3><span style="color:'+STATUS[st].c+'">'+STATUS[st].n+'</span><span class="cnt">'+items.length+'</span></h3>';
+    items.forEach(function(t){
+      html+='<div class="card" style="border-left-color:'+TRACKS[t.track].hex+'">'+
+        '<button class="del" data-del="'+t.id+'" title="Eliminar">✕</button>'+
+        '<div class="cn">'+esc(t.name)+'</div>'+
+        '<div class="cmeta"><span class="tag own">'+esc(t.owner)+'</span>'+
+        '<span class="tag" style="background:'+TRACKS[t.track].hex+'22;color:'+TRACKS[t.track].hex+'">'+TRACKS[t.track].n+'</span>'+
+        (t.start?'<span class="tag">S'+t.start+'–S'+t.end+'</span>':'')+
+        '<span class="tag">'+esc(t.type)+'</span></div>'+
+        '<select data-id="'+t.id+'" class="stsel">'+STORDER.map(function(s){return '<option value="'+s+'"'+(s===t.status?' selected':'')+'>'+STATUS[s].n+'</option>';}).join('')+'</select>'+
+      '</div>';
+    });
+    html+='</div>';
+  });
+  host.innerHTML=html;
+}
+function pct(a,b){return b===0?0:Math.round(a/b*100);}
+function renderDash(){
+  var ts=state.tasks; var done=ts.filter(function(t){return t.status==="done";}).length;
+  var doing=ts.filter(function(t){return t.status==="doing";}).length;
+  var review=ts.filter(function(t){return t.status==="review";}).length;
+  var todo=ts.filter(function(t){return t.status==="todo";}).length;
+  document.getElementById("stats").innerHTML=
+    stat(pct(done,ts.length)+"%","Avance total","var(--s-done)")+
+    stat(todo,"Por hacer","var(--s-todo)")+stat(doing,"En progreso","var(--s-doing)")+
+    stat(review,"En revisión","var(--s-review)")+stat(done,"Hecho","var(--s-done)");
+  var bp="";
+  PEOPLE.forEach(function(p){var mine=ts.filter(function(t){return (t.owner||"").indexOf(p)>=0;});var d=mine.filter(function(t){return t.status==="done";}).length;bp+=meter(p,pct(d,mine.length),"var(--t4)",d+"/"+mine.length);});
+  document.getElementById("byPerson").innerHTML=bp||'<div class="hint">Sin datos.</div>';
+  var bt="";
+  [1,2,3,4].forEach(function(k){var mine=ts.filter(function(t){return t.track===k;});var d=mine.filter(function(t){return t.status==="done";}).length;bt+=meter(TRACKS[k].n,pct(d,mine.length),TRACKS[k].hex,d+"/"+mine.length);});
+  document.getElementById("byTrack").innerHTML=bt;
+}
+function stat(big,lbl,c){return '<div class="stat"><div class="big" style="color:'+c+'">'+big+'</div><div class="lbl">'+lbl+'</div></div>';}
+function meter(lbl,p,c,val){return '<div class="meter"><div class="ml">'+esc(lbl)+'</div><div class="track"><div class="fill" style="width:'+p+'%;background:'+c+'"></div></div><div class="mv">'+val+'</div></div>';}
+function renderGantt(){
+  var host=document.getElementById("gantt");
+  var html='<div class="gr head"><div class="glab">Actividad · Responsable</div><div class="glane" style="background:none">'+
+    [1,2,3,4,5,6,7,8,9,10,11,12].map(function(w){return '<div class="gwk">'+w+'</div>';}).join('')+'</div></div>';
+  state.tasks.filter(function(t){return t.start && visible(t);}).forEach(function(t){
+    var col=t.start+"/"+(t.end+1);
+    html+='<div class="gr"><div class="glab">'+esc(t.name)+'<span class="go">'+esc(t.owner)+'</span></div>'+
+      '<div class="glane"><div class="gbar'+(t.status==="done"?" done":"")+'" style="grid-column:'+col+';background:'+TRACKS[t.track].hex+';color:'+TRACKS[t.track].tx+'">'+(t.status==="done"?"✓ ":"")+esc(shortOwner(t.owner))+'</div></div></div>';
+  });
+  host.innerHTML=html;
+}
+function shortOwner(o){var m={"Héctor":"Héctor","Alejandro":"Alejandro","Isa":"Isa","María":"María","Clarissa":"Clarissa","Todos":"Todos","Equipo de ingeniería":"Equipo","Abogado":"Abogado"};return m[o]|| (o.length>16?o.split(" ")[0]:o);}
+function renderMin(){
+  var host=document.getElementById("minList");
+  if(!state.minutes.length){host.innerHTML='<div class="hint">Aún no hay minutas registradas.</div>';return;}
+  host.innerHTML=state.minutes.slice().reverse().map(function(m){
+    return '<div class="minute"><h4>'+esc(m.fecha||"(sin fecha)")+'</h4><div class="mm">Asistentes: '+esc(m.asist||"—")+'</div>'+
+      (m.notas?'<div style="font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:8px;white-space:pre-wrap">'+esc(m.notas)+'</div>':'')+
+      (m.items&&m.items.length?'<ul>'+m.items.map(function(i){return '<li><b>'+esc(i.name)+'</b> — '+esc(i.owner)+(i.due?' · '+esc(i.due):'')+'</li>';}).join('')+'</ul>':'')+
+    '</div>';
+  }).join('');
+}
+function itemRow(){
+  var d=document.createElement("div"); d.className="item-row";
+  d.innerHTML='<input class="i-name" maxlength="120" placeholder="Acuerdo / tarea"><input class="i-own" maxlength="60" placeholder="Responsable"><input class="i-due" maxlength="40" placeholder="Fecha"><button class="btn ghost sm i-del" type="button">✕</button>';
+  d.querySelector(".i-del").onclick=function(){d.remove();};
+  return d;
+}
+function renderAll(){renderKanban();renderDash();renderGantt();renderMin();refreshSave();}
+function refreshSave(){document.getElementById("saveTA").value=JSON.stringify(state,null,1);}
+function commit(){renderAll(); if(CLOUD.on && CLOUD.save) CLOUD.save();}   // guarda en la nube si está activa
+
+(function(){
+  var s=document.getElementById("fPerson");var opts='<option value="">Todos</option>';
+  ["Héctor","Alejandro","Isa","María","Juan Emilio","Clarissa","Equipo","Abogado"].forEach(function(p){opts+='<option>'+p+'</option>';});
+  s.innerHTML=opts;
+  document.getElementById("peopleList").innerHTML=["Héctor","Alejandro","Isa","María","Juan Emilio","Clarissa","Todos","Equipo de ingeniería","Abogado"].map(function(p){return '<option value="'+p+'">';}).join('');
+})();
+
+document.getElementById("tabs").addEventListener("click",function(e){
+  if(!e.target.dataset.v)return;
+  document.querySelectorAll(".tab").forEach(function(b){b.classList.remove("active");});
+  e.target.classList.add("active");
+  document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active");});
+  document.getElementById("v-"+e.target.dataset.v).classList.add("active");
+});
+document.addEventListener("change",function(e){
+  if(e.target.classList.contains("stsel")){var id=+e.target.dataset.id;var tk=state.tasks.find(function(t){return t.id===id;});if(tk){tk.status=e.target.value;commit();}}
+});
+document.addEventListener("click",function(e){
+  if(e.target.dataset.del){var id=+e.target.dataset.del;var tk=state.tasks.find(function(t){return t.id===id;});if(tk&&confirm('¿Eliminar el pendiente «'+tk.name+'»?')){state.tasks=state.tasks.filter(function(t){return t.id!==id;});commit();}}
+});
+document.getElementById("fPerson").addEventListener("change",function(e){filter.person=e.target.value;renderKanban();renderGantt();});
+document.getElementById("fTrack").addEventListener("change",function(e){filter.track=e.target.value;renderKanban();renderGantt();});
+
+var ov=document.getElementById("overlay");
+function openModal(){["nName","nOwner","nStart","nEnd"].forEach(function(id){document.getElementById(id).value="";});document.getElementById("nTrack").value="1";document.getElementById("nStatus").value="todo";document.getElementById("nType").value="única";ov.classList.add("open");document.getElementById("nName").focus();}
+function closeModal(){ov.classList.remove("open");}
+document.getElementById("addBtn").addEventListener("click",openModal);
+document.getElementById("nCancel").addEventListener("click",closeModal);
+ov.addEventListener("click",function(e){if(e.target===ov)closeModal();});
+document.getElementById("nSave").addEventListener("click",function(){
+  var name=document.getElementById("nName").value.trim(); if(!name){alert("Escribe la actividad.");return;}
+  var owner=document.getElementById("nOwner").value.trim()||"—";var track=+document.getElementById("nTrack").value;
+  var status=document.getElementById("nStatus").value;var type=document.getElementById("nType").value;
+  var s=parseInt(document.getElementById("nStart").value,10);var e=parseInt(document.getElementById("nEnd").value,10);
+  if(isNaN(s))s=null;if(isNaN(e))e=null;if(s&&!e)e=s;if(s&&e&&e<s){var tmp=s;s=e;e=tmp;}
+  if(s){s=Math.max(1,Math.min(12,s));}if(e){e=Math.max(1,Math.min(12,e));}
+  state.tasks.push(t(name,owner,track,status,s,e,type));closeModal();commit();
+});
+document.getElementById("addItem").addEventListener("click",function(){document.getElementById("mItems").appendChild(itemRow());});
+document.getElementById("mItems").appendChild(itemRow());
+document.getElementById("saveMin").addEventListener("click",function(){
+  var items=[];
+  document.querySelectorAll("#mItems .item-row").forEach(function(r){
+    var n=r.querySelector(".i-name").value.trim();if(!n)return;
+    var o=r.querySelector(".i-own").value.trim()||"—";var d=r.querySelector(".i-due").value.trim();
+    items.push({name:n,owner:o,due:d});state.tasks.push(t(n+(d?" (para "+d+")":""),o,1,"todo",null,null));
+  });
+  var fecha=document.getElementById("mFecha").value.trim();
+  if(!fecha && !items.length && !document.getElementById("mNotas").value.trim()){alert("Agrega al menos la fecha o un acuerdo.");return;}
+  state.minutes.push({fecha:fecha,asist:document.getElementById("mAsist").value.trim(),notas:document.getElementById("mNotas").value.trim(),items:items});
+  document.getElementById("mFecha").value="";document.getElementById("mAsist").value="";document.getElementById("mNotas").value="";
+  document.getElementById("mItems").innerHTML="";document.getElementById("mItems").appendChild(itemRow());
+  commit(); alert("Minuta guardada. "+items.length+" pendiente(s) agregado(s) al tablero.");
+});
+document.getElementById("btnRefresh").addEventListener("click",refreshSave);
+document.getElementById("btnCopy").addEventListener("click",function(){var ta=document.getElementById("saveTA");ta.select();try{document.execCommand("copy");alert("Copiado.");}catch(e){alert("Selecciona el texto y cópialo manualmente.");}});
+document.getElementById("btnLoad").addEventListener("click",function(){
+  var o;try{o=JSON.parse(document.getElementById("saveTA").value);}catch(e){alert("El texto no es un JSON válido.");return;}
+  if(!validState(o)){alert("El contenido no tiene la estructura esperada del tablero. No se cargó.");return;}
+  o.minutes=Array.isArray(o.minutes)?o.minutes:[];state=o;commit();alert("Avance cargado.");
+});
+document.getElementById("btnDownload").addEventListener("click",function(){
+  try{var blob=new Blob([JSON.stringify(state,null,1)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="tablero-yospitality.json";document.body.appendChild(a);a.click();a.remove();}catch(e){alert("Si no descarga, copia el texto manualmente.");}
+});
+document.getElementById("fileIn").addEventListener("change",function(e){
+  var f=e.target.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){var o;try{o=JSON.parse(r.result);}catch(err){alert("Archivo inválido.");return;}if(!validState(o)){alert("El archivo no tiene la estructura del tablero.");return;}o.minutes=Array.isArray(o.minutes)?o.minutes:[];state=o;commit();alert("Avance cargado desde archivo.");};
+  r.readAsText(f);e.target.value="";
+});
+document.getElementById("btnReset").addEventListener("click",function(){if(confirm("Esto borra todo y regresa al plan original. ¿Continuar?")){uid=100;state={tasks:seed(),minutes:[]};commit();}});
+
+/* ================= CAPA NUBE (Firebase) ================= */
+function setUserBar(email){
+  var ub=document.getElementById("userBar");
+  if(email){document.getElementById("userEmail").textContent=email;ub.style.display="";document.getElementById("secStatus").textContent="☁️ Modo nube · sincronizado en tiempo real con los socios.";document.getElementById("toolHint").textContent="Se guarda solo en la nube.";document.getElementById("saveSub").textContent="En modo nube el tablero se guarda solo. Aquí puedes descargar un respaldo cuando quieras.";}
+  else{ub.style.display="none";}
+}
+function authMsg(t){document.getElementById("authMsg").textContent=t||"";}
+function authErr(e){
+  var c=(e&&e.code)||"";
+  var m={
+    "auth/invalid-credential":"Correo o contraseña incorrectos.",
+    "auth/wrong-password":"Correo o contraseña incorrectos.",
+    "auth/user-not-found":"No existe una cuenta con ese correo todavía; al entrar la creamos con la contraseña que escribas.",
+    "auth/invalid-email":"El correo no es válido.",
+    "auth/too-many-requests":"Demasiados intentos. Espera unos minutos e inténtalo de nuevo.",
+    "auth/weak-password":"La contraseña debe tener al menos 6 caracteres.",
+    "auth/requires-recent-login":"Por seguridad, sal y vuelve a entrar para cambiar la contraseña.",
+    "auth/missing-password":"Escribe tu contraseña."
+  };
+  return m[c] || (e&&e.message) || "Ocurrió un error.";
+}
+async function startCloud(){
+  document.getElementById("secStatus").textContent="☁️ Modo nube: conectando…";
+  try{
+    var appMod=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    var authMod=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    var fsMod=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    var app=appMod.initializeApp(CONFIG);
+    var auth=authMod.getAuth(app);
+    var db=fsMod.getFirestore(app);
+    var ref=fsMod.doc(db,"tablero","estado");
+    var gate=document.getElementById("authGate"); gate.style.display="flex";
+    function doLogin(){
+      var em=document.getElementById("authEmail").value.trim().toLowerCase();
+      var pw=document.getElementById("authPass").value;
+      if(!em||!pw){authMsg("Escribe tu correo y tu contraseña.");return;}
+      authMsg("Entrando…");
+      authMod.signInWithEmailAndPassword(auth,em,pw).catch(function(e){
+        var c=(e&&e.code)||"";
+        // Primera vez: si no existe la cuenta, se crea con la contraseña que el socio eligió.
+        if(c==="auth/user-not-found"||c==="auth/invalid-credential"){
+          authMsg("Creando tu acceso…");
+          authMod.createUserWithEmailAndPassword(auth,em,pw).catch(function(e2){
+            var c2=(e2&&e2.code)||"";
+            if(c2==="auth/email-already-in-use"){authMsg("Correo o contraseña incorrectos. Si es la primera vez, revisa tu contraseña; si ya entraste antes, usa la que registraste.");}
+            else{authMsg(authErr(e2));}
+          });
+        } else { authMsg(authErr(e)); }
+      });
+    }
+    document.getElementById("btnLogin").onclick=doLogin;
+    document.getElementById("authPass").addEventListener("keydown",function(e){if(e.key==="Enter")doLogin();});
+    document.getElementById("lnkForgot").onclick=function(ev){ev.preventDefault();
+      var em=document.getElementById("authEmail").value.trim().toLowerCase();
+      if(!em){authMsg("Escribe tu correo arriba y vuelve a dar clic en el enlace.");return;}
+      authMod.sendPasswordResetEmail(auth,em).then(function(){authMsg("Te enviamos un correo para restablecer tu contraseña. Revisa tu bandeja (y la carpeta de spam).");}).catch(function(e){authMsg(authErr(e));});
+    };
+    document.getElementById("btnSignout").onclick=function(){authMod.signOut(auth);};
+    // Cambiar contraseña (ya dentro)
+    var pwOv=document.getElementById("pwOverlay");
+    document.getElementById("btnChgPw").onclick=function(){document.getElementById("pwNew").value="";document.getElementById("pwNew2").value="";document.getElementById("pwMsg").textContent="";pwOv.classList.add("open");};
+    document.getElementById("pwCancel").onclick=function(){pwOv.classList.remove("open");};
+    document.getElementById("pwSave").onclick=function(){
+      var a=document.getElementById("pwNew").value,b=document.getElementById("pwNew2").value;
+      if(a.length<6){document.getElementById("pwMsg").textContent="Mínimo 6 caracteres.";return;}
+      if(a!==b){document.getElementById("pwMsg").textContent="Las contraseñas no coinciden.";return;}
+      if(!auth.currentUser)return;
+      authMod.updatePassword(auth.currentUser,a).then(function(){pwOv.classList.remove("open");alert("Contraseña actualizada.");}).catch(function(e){document.getElementById("pwMsg").textContent=authErr(e);});
+    };
+    var unsub=null;
+    var saveNow=function(){ fsMod.setDoc(ref,{json:JSON.stringify(state),porQuien:(auth.currentUser&&auth.currentUser.email)||"",cuando:Date.now()}).catch(function(e){console.warn("save",e);}); };
+    authMod.onAuthStateChanged(auth,function(user){
+      if(!user){gate.style.display="flex";setUserBar(null);CLOUD.on=false;CLOUD.save=null;if(unsub){unsub();unsub=null;}return;}
+      var email=(user.email||"").toLowerCase();
+      if(ALLOW.length && ALLOW.indexOf(email)<0){authMsg("La cuenta "+email+" no está autorizada.");authMod.signOut(auth);return;}
+      gate.style.display="none"; setUserBar(email);
+      CLOUD.on=true; CLOUD.save=debounce(saveNow,500);
+      if(unsub)unsub();
+      unsub=fsMod.onSnapshot(ref,function(snap){
+        if(!snap.exists()){ saveNow(); return; }              // primera vez: siembra
+        try{var inc=JSON.parse(snap.data().json); if(validState(inc)){inc.minutes=Array.isArray(inc.minutes)?inc.minutes:[]; state=inc; renderAll();}}catch(e){}
+      },function(err){
+        if(err&&err.code==="permission-denied"){authMsg("Tu cuenta no tiene acceso al tablero. Contacta al administrador.");document.getElementById("authGate").style.display="flex";setUserBar(null);CLOUD.on=false;try{authMod.signOut(auth);}catch(e){}}
+        else{document.getElementById("secStatus").textContent="☁️ Error de nube: "+(err&&err.message||"");}
+      });
+    });
+  }catch(e){
+    document.getElementById("secStatus").textContent="No se pudo conectar a la nube; usando modo local. ("+e.message+")";
+    document.getElementById("authGate").style.display="none";
+    renderAll();
+  }
+}
+
+/* ================= ARRANQUE ================= */
+if(CONFIG && CONFIG.apiKey){ startCloud(); }   // nube si hay config
+else { renderAll(); }                           // modo local (por defecto)
+</script>
+</body>
+</html>
